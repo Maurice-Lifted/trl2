@@ -1,0 +1,72 @@
+managed implementation in class zbp_r_589159_travel unique;
+strict ( 2 );
+
+/* Wurzelknoten Travel */
+define behavior for ZR_589159_Travel alias Travel
+persistent table z589159_atravel
+lock master
+authorization master ( instance )
+//etag master <field_name>
+{
+  create;
+  update;
+  delete;
+  association _Bookings { create; }
+
+  static action show_test_message;
+  action cancel_booking;
+  action maintain_booking_fees parameter ZA_589159_BookingFees;
+  validation validate_travel_period on save { create; }
+  determination dermine_travel_id on modify { update; }
+
+  field ( readonly, numbering : managed ) TravelUUID;
+  field ( readonly ) TravelId, TotalPrice;
+  field ( readonly ) Createdby, Createdat, Lastchangedby, Lastchangedat;
+  field ( mandatory : create ) AgencyId, BeginDate, CustomerId, EndDate;
+  field ( readonly : update ) AgencyId, BeginDate, CustomerId, EndDate;
+  field ( mandatory ) Description;
+
+  mapping for z589159_atravel corresponding
+    {
+      AgencyId     = agency_id;
+      BeginDate    = begin_date;
+      BookingFee   = booking_fee;
+      CurrencyCode = currency_code;
+      CustomerId   = customer_id;
+      EndDate      = end_date;
+      TotalPrice   = total_price;
+      TravelId     = travel_id;
+      TravelUuid   = travel_uuid;
+    }
+}
+
+/* Kindknoten Booking */
+define behavior for ZR_589159_Booking alias Booking
+persistent table z589159_abooking
+lock dependent by _Travel
+authorization dependent by _Travel
+//etag master <field_name>
+{
+  update;
+  delete;
+
+  field ( readonly, numbering : managed ) BookingUUID;
+  field ( readonly ) TravelUUID;
+
+  association _Travel;
+
+  mapping for z589159_abooking corresponding
+    {
+      BookingDate  = booking_date;
+      BookingId    = booking_id;
+      BookingUuid  = booking_uuid;
+      CarrierId    = carrier_id;
+      ConnectionId = connection_id;
+      CurrencyCode = currency_code;
+      CustomerId   = customer_id;
+      FlightDate   = flight_date;
+      FlightPrice  = flight_price;
+      TravelUuid   = travel_uuid;
+    }
+
+}
